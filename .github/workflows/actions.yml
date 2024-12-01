@@ -1,0 +1,54 @@
+name: scraping and training pipeline
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * 1'
+
+jobs:
+  run_workflow:
+    runs-on: ubuntu-latest
+
+    permissions:
+        contents: write
+    steps:
+      - name: Checkout repo content
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        
+      - name: Install Playwright Firefox
+        run: |
+          playwright install firefox  
+
+      - name: Run Scrapy crawl home_scraper
+        working-directory: src/scraper/peek_my_home_price
+        run: |
+          scrapy crawl home_scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ALLOWED_DOMAINS: ${{ vars.ALLOWED_DOMAINS }}
+          URL_TEMPLATE: ${{ vars.URL_TEMPLATE }}
+          NEXT_PAGE_URL: ${{ vars.NEXT_PAGE_URL }}
+
+      - name: Run model training script
+        run: |
+          python3 -m src.model_training.training_script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "apply automatic changes"
+          push_options: --force
