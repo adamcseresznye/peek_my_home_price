@@ -80,7 +80,7 @@ class DashBoardTab:
     ):
         icons = ["home", "trending_up", "signal_cellular_alt"]
         titles = ["Average Price", "Price Trend", "Most Active Region"]
-        values = [price, percentage, province]
+        values = [f"€{int(price[1:]):,}", percentage, province]
         descriptions = [last_updated, frequency, listing_number]
 
         with ui.row().classes(
@@ -114,7 +114,7 @@ class DashBoardTab:
             (
                 "euro",
                 "green",
-                f"The most expensive house, costing €{most_expensive_house[0]}, is in {most_expensive_house[1]}, {most_expensive_house[2]}.",
+                f"The most expensive house, costing €{most_expensive_house[0]:,}, is in {most_expensive_house[1]}, {most_expensive_house[2]}.",
             ),
             (
                 "bolt",
