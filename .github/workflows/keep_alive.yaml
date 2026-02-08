@@ -1,0 +1,13 @@
+name: Ping website to keep supabase active
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  ping_website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the application URL
+        run: curl -s https://peek-my-home-price.fly.dev/ > /dev/null
